@@ -2,6 +2,7 @@ import * as builder from '../builder/builder.js'
 import { toast } from './alert.js'
 import { addNavBar, getUserImage } from './navbar.js'
 import { floatingBlock } from './floatingBlock.js'
+import { addPostsSpace } from './postSpace.js';
 
 if (localStorage.getItem('user') === null)
 {
@@ -24,7 +25,7 @@ if (localStorage.getItem('user') === null)
 			form.append("operation", "login");
 			form.append("email", email.value);
 			form.append("password", password.value);
-			builder.brdige("http://localhost:8080//Controllers/userController.php/", "GET", form,
+			builder.brdige(builder.api+"userController.php", "GET", form,
 			function(data){
 				if (data === "false")
 					toast("المعلومات خاطئة", 3000, "danger")
@@ -67,7 +68,7 @@ if (localStorage.getItem('user') === null)
 					formcreate.append("email", cemail.value);
 					formcreate.append("password", cpassword.value);
 
-					builder.brdige("http://localhost:8080//Controllers/userController.php/", "POST", formcreate,
+					builder.brdige(builder.api+"userController.php", "POST", formcreate,
 					function(data){
 						if (data === "email")
 							toast("البريد الإلكتروني مستعمل", 3000, "danger")
@@ -100,4 +101,5 @@ function startSession(user)
 		localStorage.setItem("user", JSON.stringify(user));
 	getUserImage();
 	addNavBar();
+	addPostsSpace();
 }

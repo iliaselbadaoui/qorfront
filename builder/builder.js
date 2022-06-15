@@ -4,6 +4,7 @@ function create(element)
 }
 
 export const app = getId("App");
+export const api = "http://localhost:8080//Controllers/";
 
 export function getId(id)
 {
@@ -42,7 +43,8 @@ export function block(id, styleClass, childs)
 {
 	let block = create("div");
 
-	block.id = id;
+	if (id !== null)
+		block.id = id;
 	block.className = styleClass;
 	if (childs !== null && childs !== undefined)
 	{
@@ -57,7 +59,8 @@ export function button(id, styleClass, textValue, html)
 {
 	let button = create("button");
 
-	button.id = id;
+	if (id !== null)
+		button.id = id;
 	button.className = styleClass;
 	if(textValue !== null)
 		button.textContent = textValue;

@@ -19,8 +19,8 @@ let logo = builder.image('sLogo', 'smallLogo', 'dice.png'),
 	accountSettings = createItem("settings", '<i class="far fa-cogs"></i>', "إعدادات الحساب"),
 	list = builder.block("menuList", "menuList", [profile, accountSettings, payments, logout]),
 	menu = builder.block("menu", "floatingMenu"),
-	addPost = builder.button("add", "navButton", "add", '<i class="far fa-plus"></i>'),
-	searchBtn = builder.button("search", "navButton", "search", '<i class="far fa-search"></i>'),
+	addPost = builder.button("add", "navButton", null, '<i class="far fa-plus"></i>'),
+	searchBtn = builder.button("search", "navButton", null, '<i class="far fa-search"></i>'),
 	toolsBlock = builder.block("tools", "tools", [searchBtn, addPost, menu]),
 	header = builder.block("navbar", "navbar", [logo, toolsBlock]);
 
@@ -55,14 +55,63 @@ addPost.onclick = (()=>{
 					floats = floatingBlock(uploadBlock, imageContainer, validatePost);
 
 				uploadBlock.innerHTML = '<i class="far fa-image"></i>  أضف الصور';
+				files.multiple=true;
+				files.accept="image/*"
 				uploadBlock.onclick = (()=>{files.click()});
 				builder.app.removeChild(floats1);
 				builder.app.append(floats);
+				files.onchange = (()=>{
+					if(files.files.length != 4)
+						toast("المرجو اختيار اربع صور", 3000, "danger");
+					let images = files.files;
+					toBase64(images[0], image1);
+					toBase64(images[1], image2);
+					toBase64(images[2], image3);
+					toBase64(images[3], image4);
+					
+				})
+				validatePost.onclick = (()=>{
+					if(files.files.length != 4)
+						toast("المرجو اختيار اربع صور", 3000, "danger");
+					let data = new FormData();
+					data.append("operation", "add_listing");
+					data.append("title", title.value);
+					data.append("desc", desc.value);
+					data.append("price", targetPrice.value);
+					data.append("dateEnd", dateEnd.value);
+					data.append("user", (JSON.parse(localStorage.getItem("user")).id));
+					data.append("pic1", files.files[0]);
+					data.append("pic2", files.files[1]);
+					data.append("pic3", files.files[2]);
+					data.append("pic4", files.files[3]);
+					builder.brdige(builder.api+"listingController.php", "POST", data,
+					function (response){
+						if (!response.includes("error"))
+							toast("تمت إضافة المنشور بنجاح", 3000, "info");
+						else
+							toast("حدث خطأ، المرجو إعادة المحاولة بعد قليل", 3000, "warn")
+					},
+					function (response){
+						toast("حدث خطأ، المرجو إعادة المحاولة بعد قليل", 3000, "warn")
+					})
+				})
 			}
 		});
 
 		builder.app.append(floats1);
 });
+
+
+function toBase64(file, dest)
+{
+	let reader = new FileReader();
+	reader.onload = function(evt)
+	{
+		dest.src = evt.target.result;
+		console.log(evt.target.result);
+	}
+	reader.readAsDataURL(file);
+}
 
 export function addNavBar()
 {
@@ -81,7 +130,7 @@ export function getUserImage()
 		
 		if (localStorage.getItem('userImage') === null)
 		{
-			builder.brdige("http://localhost:8080//Controllers/userController.php/", "GET", form,
+			builder.brdige(builder.api+"userController.php", "GET", form,
 			function(data){
 				if (data === "false")
 					data = "#"

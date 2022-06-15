@@ -288,3 +288,27 @@
 	width: 128px;
 	aspect-ratio: initial;
 }
+
+.postSpace
+{
+	width: 80%;
+	height: 700px;
+	padding-top: 64px;
+	background-color: var(--contrast);
+	display: flex;
+	align-self: center;
+	flex-direction: row;
+	justify-content: space-between;
+}
+.postsContainer
+{
+	width: 60%;
+	height: 100%;
+	background-color: #ffffff;
+}
+.postFilter
+{
+	width: 35%;
+	height: 100%;
+	background-color: #ffffff;
+}
