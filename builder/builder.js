@@ -32,7 +32,8 @@ export function image(id, styleClass, source)
 {
 	let img = create("img");
 
-	img.id = id;
+	if (id !== null)
+		img.id = id;
 	img.className = styleClass;
 	img.src = source;
 
@@ -93,4 +94,33 @@ export function brdige(endpoint, method, formdata, sucess, error)
 			error(xhr.status);
 	}
 	xhr.send(formdata);
+}
+
+export function label(styleClass, value)
+{
+	let lab = document.createElement("span");
+
+	lab.textContent = value;
+	lab.className = styleClass;
+
+	return lab;
+}
+
+export function isArabic(str)
+{
+	var arabic = /[\u0600-\u06FF]/;
+
+	if(arabic.test(str))
+		return true;
+	return false;
+}
+export function toBase64(file, dest)
+{
+	let reader = new FileReader();
+	reader.onload = function(evt)
+	{
+		dest.src = evt.target.result;
+		// console.log(evt.target.result);
+	}
+	reader.readAsDataURL(file);
 }

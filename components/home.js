@@ -102,4 +102,5 @@ function startSession(user)
 	getUserImage();
 	addNavBar();
 	addPostsSpace();
+	builder.app.append(builder.block(null, "footer"))
 }

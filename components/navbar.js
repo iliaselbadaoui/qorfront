@@ -1,6 +1,8 @@
 import * as builder from "../builder/builder.js"
 import { toast } from "./alert.js";
-import { floatingBlock } from './floatingBlock.js'
+import { floatingBlock} from './floatingBlock.js'
+import { createProfile } from "./profile.js";
+import { gateway } from "./YCP.js";
 
 function createItem(id, icon, content)
 {
@@ -15,13 +17,13 @@ function createItem(id, icon, content)
 let logo = builder.image('sLogo', 'smallLogo', 'dice.png'),
 	profile = createItem("profile", '<i class="fal fa-user"></i>', "الملف الشخصي"),
 	logout = createItem("logout", '<i class="far fa-sign-out"></i>', "خروج"),
-	payments = createItem("payments", '<i class="far fa-credit-card"></i>', "وسائل الدفع"),
-	accountSettings = createItem("settings", '<i class="far fa-cogs"></i>', "إعدادات الحساب"),
-	list = builder.block("menuList", "menuList", [profile, accountSettings, payments, logout]),
+	payments = createItem("payments", '<i class="far fa-credit-card"></i>', "شحن الحساب"),
+	list = builder.block("menuList", "menuList", [profile, payments, logout]),
 	menu = builder.block("menu", "floatingMenu"),
 	addPost = builder.button("add", "navButton", null, '<i class="far fa-plus"></i>'),
+	myParticipations = builder.button("participations", "navButton", null, '<i class="far fa-heart"></i>'),
 	searchBtn = builder.button("search", "navButton", null, '<i class="far fa-search"></i>'),
-	toolsBlock = builder.block("tools", "tools", [searchBtn, addPost, menu]),
+	toolsBlock = builder.block("tools", "tools", [searchBtn, myParticipations, addPost, menu]),
 	header = builder.block("navbar", "navbar", [logo, toolsBlock]);
 
 
@@ -31,6 +33,16 @@ logout.onclick = function ()
 	document.location.reload();
 }
 
+profile.onclick = (()=>{
+		let menu = createProfile(JSON.parse(localStorage.getItem("user")));
+		builder.app.append(menu);
+})
+
+payments.onclick = (()=>{
+	let ycp = gateway();
+	builder.app.append(ycp);
+})
+
 addPost.onclick = (()=>{
 	let title = builder.textBox("productName", "العنوان", "text", "textin"),
 		desc = builder.textBox("description", "وصف المعروض", "text", "textin"),
@@ -39,6 +51,7 @@ addPost.onclick = (()=>{
 		addPost = builder.button("addPost", "go", "التالي"),
 		floats1 = floatingBlock(title, desc, targetPrice, dateEnd, addPost);
 
+		desc.setAttribute('maxlength',1000);
 		addPost.onclick = (()=>{
 			if (title.value == '' || desc.value == '' || targetPrice.value == '' || dateEnd.value == '')
 				toast("المرجو ملء جميع الحقول", 3000, "danger");
@@ -64,10 +77,10 @@ addPost.onclick = (()=>{
 					if(files.files.length != 4)
 						toast("المرجو اختيار اربع صور", 3000, "danger");
 					let images = files.files;
-					toBase64(images[0], image1);
-					toBase64(images[1], image2);
-					toBase64(images[2], image3);
-					toBase64(images[3], image4);
+					builder.toBase64(images[0], image1);
+					builder.toBase64(images[1], image2);
+					builder.toBase64(images[2], image3);
+					builder.toBase64(images[3], image4);
 					
 				})
 				validatePost.onclick = (()=>{
@@ -101,18 +114,6 @@ addPost.onclick = (()=>{
 		builder.app.append(floats1);
 });
 
-
-function toBase64(file, dest)
-{
-	let reader = new FileReader();
-	reader.onload = function(evt)
-	{
-		dest.src = evt.target.result;
-		console.log(evt.target.result);
-	}
-	reader.readAsDataURL(file);
-}
-
 export function addNavBar()
 {
 	builder.app.append(header);
@@ -145,6 +146,8 @@ export function getUserImage()
 		}
 		else
 		{
+			if (JSON.parse(localStorage.getItem("userImage")).image === "data:;base64,")
+					localStorage.setItem("userImage", JSON.stringify({"image":"profileImage.png"}));
 			let userImage = builder.image("userPic", "upp", (JSON.parse(localStorage.getItem("userImage")).image));
 			menu.append(userImage, list);
 		}

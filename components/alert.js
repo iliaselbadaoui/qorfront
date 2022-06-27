@@ -7,11 +7,11 @@ export function toast(message, delay, type)
 
 	alert.textContent = message;
 	if (type === "danger")
-		alert.className = "dangerAlert";
+		alert.className = "danger";
 	else if (type === "info")
-		alert.className = "infoAlert";
+		alert.className = "info";
 	else if (type === "warn")
-		alert.className = "warnAlert";
+		alert.className = "warn";
 	app.append(alert);
 	setTimeout(()=>{
 	app.removeChild(alert)
