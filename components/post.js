@@ -1,5 +1,5 @@
 import * as builder from "../builder/builder.js"
-
+import { toast } from "./alert.js"
 
 export function postsFactory(rawData, parent)
 {
@@ -33,6 +33,12 @@ function createPost(data)
 		sliderBlock = builder.block(null, "postSlider", [image1, image2, image3, image4, nextLeft, nextRight]),
 		postContainer = builder.block(null, "postContainer", [topBlock, sliderBlock, title, desc, bottomBlock]);
 
+		if (builder.isArabic(data.userFullName))
+			userName.style.direction = "rtl";
+		if (!builder.isArabic(data.title))
+			title.style.direction = "ltr";
+		if (!builder.isArabic(data.desc))
+			desc.style.direction = "ltr";
 		userName.textContent = data.userFullName;
 		title.textContent = data.title;
 		desc.textContent = data.desc;
@@ -72,5 +78,35 @@ function createPost(data)
 			}
 		})
 
+		getTicket.onclick = (()=>{
+			buyTicket(JSON.parse(localStorage.user), data.listingID);
+		})
+
 		return postContainer;
+}
+
+function buyTicket(user, listing)
+{
+	let form = new FormData();
+	form.append("operation", "create_ticket");
+	form.append("user", user.id);
+	form.append("listing", listing);
+	builder.brdige(builder.api+"/listingController.php", "POST", form,
+	((res)=>{
+		if (res === "Solde")
+		{
+			toast("رصيدك غير كافي", 3000, "warn");
+			return 0;
+		}
+		else if (res === "Wrong")
+		{
+			toast("حدث خطأ", 3000, "danger");
+			return 0;
+		}
+		localStorage.user = res;
+		toast("تم حجز التذكرة بنجاح", 3000, "info");
+	}),
+	((err)=>{
+
+	}))
 }

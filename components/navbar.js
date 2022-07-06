@@ -2,7 +2,7 @@ import * as builder from "../builder/builder.js"
 import { toast } from "./alert.js";
 import { floatingBlock} from './floatingBlock.js'
 import { createProfile } from "./profile.js";
-import { gateway } from "./YCP.js";
+import { gateway } from "./refile.js";
 
 function createItem(id, icon, content)
 {
@@ -41,6 +41,7 @@ profile.onclick = (()=>{
 payments.onclick = (()=>{
 	let ycp = gateway();
 	builder.app.append(ycp);
+	
 })
 
 addPost.onclick = (()=>{

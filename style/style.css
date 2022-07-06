@@ -666,3 +666,31 @@
 	background-color: var(--danger);
 	color: #ffffff;
 }
+.YCP_container
+{
+	width: 30%;
+	padding: 32px;
+	border-radius: 8px;
+	background-color: #ffffff;
+	position: absolute;
+	z-index: 109;
+	align-self: center;
+	display: flex;
+	flex-direction: column;
+	overflow: scroll;
+	max-height: 50%;
+}
+#pay
+{
+	width: 200px;
+	height: 32px;
+	font-family: 'Markazi Text', serif;
+	font-size: 18px;
+	border: none;
+	background-color: var(--contrast);
+	color: var(--alternate);
+	cursor: pointer;
+	border-radius: 8px;
+	margin-top: 16px;
+	align-self: center;
+}
