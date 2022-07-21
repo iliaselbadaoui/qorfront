@@ -5,9 +5,10 @@ const	posts = builder.block("postsContainer","postsContainer"),
 		filters = builder.block("postFilter","postFilter"),
 		space = builder.block("postSpace", "postSpace", [filters, posts]);
 
-export function addPostsSpace()
+export function addPostsSpace(opt = null)
 {
-	builder.app.append(space);
+	if (!opt)
+		builder.app.append(space);
 	let form = new FormData();
 	form.append("operation", "posts");
 	builder.brdige(builder.api+"listingController.php", "GET", form,

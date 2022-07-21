@@ -1,6 +1,8 @@
 import * as builder from "../builder/builder.js"
 import { toast } from "./alert.js";
-import { floatingBlock} from './floatingBlock.js'
+import { floatingBlock, floatingMenu} from './floatingBlock.js'
+import { postsFactory } from "./post.js";
+import { addPostsSpace } from "./postSpace.js";
 import { createProfile } from "./profile.js";
 import { gateway } from "./refile.js";
 
@@ -38,19 +40,79 @@ profile.onclick = (()=>{
 		builder.app.append(menu);
 })
 
+myParticipations.onclick = function(){favs()};
+
+function favs(){
+	myParticipations.innerHTML = '<i class="far fa-home"></i>';
+	let myTicks = document.getElementById("postsContainer"),
+		form = new FormData(),
+		userOBJ = JSON.parse(localStorage.user);
+	myTicks.innerHTML = "";
+	form.append("operation", "user_tickets");
+	form.append("user", userOBJ.id);
+
+	builder.brdige(builder.api+"/listingController.php", "GET", form,
+	function(success){
+		postsFactory(success, myTicks, 2);
+	},
+	function(error){
+		
+	})
+	myParticipations.onclick = function(){home()}
+}
+
+function home()
+{
+	myParticipations.innerHTML = '<i class="far fa-heart"></i>';
+	let myTicks = document.getElementById("postsContainer");
+	myTicks.innerHTML = "";
+	addPostsSpace(1);
+	myParticipations.onclick = function(){favs()}
+}
+
 payments.onclick = (()=>{
-	let ycp = gateway();
-	builder.app.append(ycp);
+	let date = new Date(),
+		user = JSON.parse(localStorage.getItem("user")), orderID,
+		ds = date.toLocaleDateString('fr-FR').split('/').join(''),
+		dt = date.toLocaleTimeString('ar-MA').split(":").join('');
 	
+	let refillLabel = builder.label("bigLabel", "شحن الحساب"),
+		rangeValue = builder.textBox("refillRange", "", "range", "refillRange"),
+		rangeCurrent = builder.label("rangeValue", ''),
+		acceptValue = builder.button(null, "go", "تأكيد", null),
+		refillBlock = floatingMenu("refillSpace", refillLabel, rangeValue, rangeCurrent, acceptValue);
+
+	builder.app.append(refillBlock);
+	builder.app.append(refillBlock);
+	rangeValue.min = 10;
+	rangeValue.max = 2000;
+	rangeValue.step = 10;
+	rangeValue.value = 100;
+	rangeCurrent.textContent = rangeValue.value+" درهم";
+
+	rangeValue.oninput = (()=>{
+		rangeCurrent.textContent = rangeValue.value+" درهم"
+	})
+	acceptValue.onclick = (()=>{
+		const amount = parseInt(rangeValue.value);
+		if (amount > 2000 || amount < 10)
+		{
+			toast("المرجو عدم التلاعب بالقيم", 4000, "warn")
+			return 0
+		}
+		orderID = 'dti'+ds+dt+'u'+user.id;
+		gateway(orderID, amount, user);	
+	})
 })
 
 addPost.onclick = (()=>{
-	let title = builder.textBox("productName", "العنوان", "text", "textin"),
+	let createLabel = builder.label("bigLabel", "أضف منشور جديد"),
+		title = builder.textBox("productName", "العنوان", "text", "textin"),
 		desc = builder.textBox("description", "وصف المعروض", "text", "textin"),
 		targetPrice = builder.textBox("price", "الثمن", "number", "textin"),
 		dateEnd = builder.textBox("endDate", "تاريخ نهاية العرض", "date", "textin"),
 		addPost = builder.button("addPost", "go", "التالي"),
-		floats1 = floatingBlock(title, desc, targetPrice, dateEnd, addPost);
+		floats1 = floatingBlock(createLabel, title, desc, targetPrice, dateEnd, addPost);
 
 		desc.setAttribute('maxlength',1000);
 		addPost.onclick = (()=>{
@@ -101,7 +163,10 @@ addPost.onclick = (()=>{
 					builder.brdige(builder.api+"listingController.php", "POST", data,
 					function (response){
 						if (!response.includes("error"))
+						{
 							toast("تمت إضافة المنشور بنجاح", 3000, "info");
+							builder.app.removeChild(floats);
+						}
 						else
 							toast("حدث خطأ، المرجو إعادة المحاولة بعد قليل", 3000, "warn")
 					},

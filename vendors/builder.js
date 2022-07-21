@@ -71,6 +71,18 @@ export function button(id, styleClass, textValue, html)
 	return button;
 }
 
+export function textArea(id, styleClass, hint)
+{
+	let ta = create("textarea");
+
+	if (id)
+		ta.id = id;
+	ta.className = styleClass;
+	ta.placeholder = hint;
+
+	return ta;
+}
+
 export function brdige(endpoint, method, formdata, sucess, error)
 {
 	let xhr = new XMLHttpRequest();

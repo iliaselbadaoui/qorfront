@@ -1,18 +1,23 @@
 import * as builder from "../builder/builder.js"
 import { toast } from "./alert.js"
 
-export function postsFactory(rawData, parent)
+export function postsFactory(rawData, parent, mine = null)
 {
 	let array = JSON.parse(rawData);
-
-	// console.log(rawData);
+	if (array.length === 0)
+	{
+		parent.textContent = "لا يوجد منشورات";
+		return 0;
+	}
 	array.forEach(row => {
-		parent.append(createPost(row));
-		// console.log(row);
+		if (!mine)
+			parent.append(createPost(row));
+		else if (mine)
+			parent.append(createPost(row, mine));
 	});
 }
 
-function createPost(data)
+function createPost(data, mine = null)
 {
 	if (data.userPhoto === 'data:;base64,')
 		data.userPhoto = "profileImage.png";
@@ -20,6 +25,7 @@ function createPost(data)
 		userName = builder.block(null, "postUserName"),
 		topBlock = builder.block(null, "userData", [userImage, userName]),
 		getTicket = builder.button(null, "postGetTicket", null,'<i class="fad fa-ticket"></i>&nbsp;احجز تذكرة'),
+		myTicks = builder.label("postMyTicket", data.tickets+'/'+parseInt(data.target/10)+" تذاكر"),
 		dateBlock = builder.block(null, "dateBlock"),
 		bottomBlock = builder.block(null, "postBottomBlock", [getTicket, dateBlock]),
 		desc = builder.block(null, "postDescription"),
@@ -39,6 +45,11 @@ function createPost(data)
 			title.style.direction = "ltr";
 		if (!builder.isArabic(data.desc))
 			desc.style.direction = "ltr";
+		if (mine)
+		{
+			bottomBlock.removeChild(getTicket);
+			bottomBlock.insertBefore(myTicks, dateBlock);
+		}
 		userName.textContent = data.userFullName;
 		title.textContent = data.title;
 		desc.textContent = data.desc;

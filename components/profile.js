@@ -8,10 +8,20 @@ function listUserPosts(posts, parent)
 	posts.forEach(post => {
 		let photo = builder.image(null, "userProfilePostImage", post.miniature),
 			title = builder.label("userProfilePostTitle", post.title),
+			collected = builder.label("userProfilePostfunds", post.funds+" درهم"),
 			trash = builder.button(null, "userProfilePostDelete", null, '<i class="far fa-trash-alt"></i>'),
-			container = builder.block(null, "userProfilePost", [photo, title, trash]);
+			draw = builder.button(null, "userProfilePostDraw", null, '<i class="fal fa-dice-d12"></i>'),
+			container = builder.block(null, "userProfilePost", [photo, title, collected, trash]),
+			expires = new Date(post.expires),
+			now = new Date();
 		parent.append(container);
 
+		draw.title = 'اسحب';
+		trash.title = 'أزل المنشور';
+		if (expires < now)
+			container.append(draw);
+
+		draw.onclick = function(){makeDraw(post.id)}
 		trash.onclick = (()=>{
 			let form = new FormData();
 			form.append("operation", "delete_listing");
@@ -25,6 +35,16 @@ function listUserPosts(posts, parent)
 			})
 		})
 	});
+}
+
+function makeDraw(listing)
+{
+	let titleLabel = builder.label("bigLabel", "قرعة"),
+		textZone = builder.textArea(null, "disabledArea", ""),
+		execDraw = builder.button(null, "go", "اسحب", null),
+		floating_block = floatingBlock(titleLabel, textZone, execDraw);
+
+	builder.app.append(floating_block);
 }
 
 export function createProfile(userObj)
@@ -140,6 +160,22 @@ function updateUser(userObj, email, phone)
 		}
 		else
 			toast("حدث خطأ", 3000, "info")
+	},
+	function (err)
+	{
+		toast("حدث خطأ", 3000, "info")
+	})
+}
+
+export function updateUserLocalData(id)
+{
+	let form = new FormData();
+	form.append("operation", "user_id");
+	form.append("id", id);
+	builder.brdige(builder.api+"userController.php", "GET", form,
+	function (res)
+	{
+		localStorage.user = res;
 	},
 	function (err)
 	{
